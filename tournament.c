@@ -112,7 +112,13 @@ Tournament copyTournament(Tournament tournament)
     copy_tournament->max_games_per_player = tournament->max_games_per_player;
     copy_tournament->winner_id = tournament->winner_id;
     copy_tournament->is_closed = tournament->is_closed;
-    copy_tournament->tournament_games = mapCopy(tournament->tournament_games);
+    Map tournament_games_map_copy =mapCopy(tournament->tournament_games);
+    if(tournament_games_map_copy==NULL)
+    {
+        free(copy_tournament);
+        return NULL;
+    }
+    copy_tournament->tournament_games = tournament_games_map_copy;
     return copy_tournament;
 }
 
