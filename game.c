@@ -33,6 +33,22 @@ Game createGame(int tournament_id, int first_player, int second_player,
     return game;
 }
 
+Game copyGame(Game game)
+{
+    Game newGame = malloc(sizeof(*newGame));
+    if (newGame == NULL)
+    {
+        return NULL;
+    }
+
+    newGame->first_player = game->second_player;
+    newGame->second_player = game->second_player;
+    newGame->winner = game->winner;
+    newGame->play_time = game->play_time;
+    newGame->tournament_id = game->tournament_id;
+    return newGame;
+}
+
 void destroyGame(Game game)
 {
     if (game == NULL)
