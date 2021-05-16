@@ -18,18 +18,38 @@ typedef enum Winner_t
 } Winner;
 
 /** Type for defining the Game */
-typedef struct Game_t *Game;
+typedef struct Game_t
+{
+     int first_player;
+    int second_player;
+    Winner winner;
+    int play_time;
+    int tournament_id;
+}
+ *Game;
 
 static void editGameWinner(Winner winner);
-
+/**
+ * Alloc new memory for a game and copy the data from the given one.
+ * returns the clone
+ */
 Game copyGame(Game game);
-
+/**
+ * Alloc new memory for a game and sets the data recieved.
+ * returns the game.
+ */
 Game createGame(int first_player, int second_player,
                 Winner winner, int play_time);
 
 
+/**
+ * Dealloc all memory used by the game struct
+ */
 void destroyGame(Game game);
 
+/**
+ * Check if games have the same opponents as the other
+ */
 bool compareGames(Game game1, Game game2);
 
 /**
@@ -37,6 +57,16 @@ bool compareGames(Game game1, Game game2);
  */
 bool isPlayerInGame(Game game, int player_id);
 
-void removePlayer(Game Game, int index_player);
+/**
+ * Given a player_id - removes it from the given game.
+ * then, updates the winner using editGameWinner static funct.
+ * if player_id does not match any of the players does nothing.
+ */
+void removePlayer(Game game, int index_player);
+
+/**
+ * returns the game time of a game
+ */
+int getGameTime(Game game);
 
 #endif
