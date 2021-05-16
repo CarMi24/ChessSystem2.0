@@ -49,6 +49,10 @@ static void updateLongestGameTime(Tournament tournament, int new_time);
 */
 Tournament createTournament(int tournament_id, char* location, int max_games_per_player);
 
+/**
+ * allocates and returns a copy of a given tournament
+ */
+Tournament copyTournament(Tournament tournament);
 
 void destroyTournament(Tournament tournament);
 
