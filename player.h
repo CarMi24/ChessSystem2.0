@@ -67,6 +67,11 @@ static TournamentStats copyStats(TournamentStats stats);
 
 Player createPlayer(int player_id);
 
+/**
+ * allocates and returns a new copy of a given player
+ */
+Player copyPlayer(Player player);
+
 
 void destroyPlayer(Player player);
 
