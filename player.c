@@ -93,6 +93,29 @@ Player createPlayer(int player_id)
     player->tournament_rates = tournament_rates;
 }
 
+Player copyPlayer(Player player)
+{
+    Player copy_player = malloc(sizeof(*copy_player));
+    if (copy_player == NULL)
+    {
+        return NULL;
+    }
+    copy_player->player_id = player->player_id;
+    copy_player->total_wins = player->total_wins;
+    copy_player->total_losses = player->total_losses;
+    copy_player->total_draws = player->total_draws;
+    copy_player->level = player->level;
+    copy_player->total_play_time = player->total_play_time;
+    Map tournament_rates_map_copy = mapCopy(player->tournament_rates);
+    if (tournament_rates_map_copy == NULL)
+    {
+        free(copy_player);
+        return NULL;
+    }
+    copy_player->tournament_rates = tournament_rates_map_copy;
+    return copy_player;
+}
+
 void destroyPlayer(Player player)
 {
     if (player == NULL)
