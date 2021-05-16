@@ -11,7 +11,8 @@ typedef enum TournamentResult_t
 {
     TOURNAMENT_OUT_OF_MEMORY,
     TOURNAMENT_NULL_ARGUMENT,
-    TOURNAMENT_ERROR
+    TOURNAMENT_ERROR,
+    TOURNAMENT_SUCCESS
     
 }TournamentResult;
 
@@ -60,12 +61,6 @@ bool checkIfGameExists(Tournament tournament, Game game);
  * Adds a game to the games map.
  */
 TournamentResult addGameToTournament(Tournament tournament, Game game);
-
-/**
- * Returns the Tournament id
- * If recieve NULL parameter return -1.
- */
-int getTournamentID(Tournament tournament);
 
 /**
  * Iterates the games map and remove the player from each game he plays in.
