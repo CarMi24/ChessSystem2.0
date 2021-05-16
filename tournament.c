@@ -134,6 +134,7 @@ TournamentResult addGameToTournament(Tournament tournament, Game game)
     {
         return TOURNAMENT_ERROR;
     }
+    destroyGame(game);
     return TOURNAMENT_SUCCESS;
 }
 
