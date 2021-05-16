@@ -100,6 +100,22 @@ Tournament createTournament(int tournament_id, char* location, int max_games_per
     return new_tournament;
 }
 
+Tournament copyTournament(Tournament tournament)
+{
+    Tournament copy_tournament = malloc(sizeof(*copy_tournament));
+    if (copy_tournament == NULL)
+    {
+        return NULL;
+    }
+    copy_tournament->tournament_id = tournament->tournament_id;
+    copy_tournament->tournament_location = tournament->tournament_location;
+    copy_tournament->max_games_per_player = tournament->max_games_per_player;
+    copy_tournament->winner_id = tournament->winner_id;
+    copy_tournament->is_closed = tournament->is_closed;
+    copy_tournament->tournament_games = mapCopy(tournament->tournament_games);
+    return copy_tournament;
+}
+
 void destroyTournament(Tournament tournament)
 {
     destroyMap(tournament->tournament_games);
