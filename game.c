@@ -17,12 +17,11 @@ static void editGameWinner(Game game, Winner winner)
 }
 
 Game createGame(int tournament_id, int first_player, int second_player,
-                Winner winner, int play_time, GameResult game_result)
+                Winner winner, int play_time)
 {
     Game game = malloc(sizeof(*game));
     if (game == NULL)
     {
-        game_result = GAME_OUT_OF_MEMORY;
         return NULL;
     }
     game->tournament_id = tournament_id;
@@ -32,7 +31,6 @@ Game createGame(int tournament_id, int first_player, int second_player,
     game->play_time = play_time;
     return game;
 }
-
 Game copyGame(Game game)
 {
     Game newGame = malloc(sizeof(*newGame));
@@ -53,7 +51,7 @@ void destroyGame(Game game)
 {
     if (game == NULL)
     {
-        return NULL;
+        return;
     }
     free(game);
 }
@@ -71,14 +69,28 @@ bool isPlayerInGame(Game game, int player_id)
 {
     return ((game->first_player == player_id) || (game->second_player == player_id) ? true : false);
 }
-void removePlayer(Game game, int player_id)
+void removePlayerFromGame(Game game, int player_id)
 {
     if (game->first_player == player_id)
     {
         game->first_player = 0;
+        editGameWinner(game, SECOND);
     }
     else
     {
         game->second_player = 0;
+        editGameWinner(game, FIRST);
     }
+}
+int getFirstPlayerId(Game game)
+{
+    return game->first_player;
+}
+int getSecondPlayerId(Game game)
+{
+    return game->second_player;
+}
+int getGamePlayTime(Game game)
+{
+    return game->play_time;
 }
