@@ -1,8 +1,9 @@
 #ifndef TOURNAMENT_H
 #define TOURNAMENT_H
 
-#include "map.h";
-#include "game.h";
+#include "map.h"
+#include "game.h"
+#include "player.h"
 
 #define NULL_ID -1
 
@@ -13,33 +14,12 @@ typedef enum TournamentResult_t
     TOURNAMENT_NULL_ARGUMENT,
     TOURNAMENT_ERROR,
     TOURNAMENT_SUCCESS
-    
-}TournamentResult;
+
+} TournamentResult;
+
+//typedef struct Tournament_t *Tournament;
 
 typedef struct Tournament_t *Tournament;
-
-
-/** Functions for the games map**/
-
-/**
- * GameKey is type of integer pointer - the number of the game in the tournament.
- * GameData is type of Game - games that are taken place in the tournament.
- * The key will be the tournament_id where the game takes place.
-*/
-static MapKeyElement copyGameKey(MapKeyElement game_key);
-static MapDataElement copyGameData(MapDataElement game);
-static void freeGameKey(MapKeyElement game_key);
-static void freeGameData(MapDataElement game);
-static int compareKeyGame(MapKeyElement game1, MapKeyElement game2);
-
-
-/**
- * updates the longest game time if new_time is bigger.
- * otherwise does nothing. 
- */
-static void updateLongestGameTime(Tournament tournament, int new_time);
-
-
 
 /**
 * createTournament: Allocates a new empty tournament.
@@ -47,12 +27,23 @@ static void updateLongestGameTime(Tournament tournament, int new_time);
 * 	NULL - if allocations failed.
 * 	A new Tournament in case of success.
 */
-Tournament createTournament(int tournament_id, char* location, int max_games_per_player);
+Tournament createTournament(int tournament_id, const char *location, int max_games_per_player);
 
 /**
  * allocates and returns a copy of a given tournament
  */
 Tournament copyTournament(Tournament tournament);
+
+/**
+ * Get functions  NEED COPY OR BY VALUE?
+ */
+int getTournamentId(Tournament tournament);
+char *getTournamentLocation(Tournament tournament);
+Map getTournamentGamesMap(Tournament tournament);
+int getTournamentMaxGamesPerPlayer(Tournament tournament);
+int getTournamentWinnerId(Tournament tournament);
+int getTournamentLongestGameTime(Tournament tournament);
+bool getTournamentIsClosed(Tournament tournament);
 
 void destroyTournament(Tournament tournament);
 
@@ -79,7 +70,7 @@ TournamentResult removePlayerFromTournament(Tournament tournament, int player_id
  * @return -
  * TOURNAMENT_NULL_ARGUMENT
  */
-TournamentResult endTournament(Tournament tournament);
+TournamentResult endTournament(Tournament tournament, int winner_id);
 
 /**
  * returns the tournament longest play time.
@@ -102,7 +93,10 @@ bool getTournamentStatus(Tournament Tournament);
  * TOURNAMENT_NULL_ARGUMENT
  * TOURNAMENT_ERROR - if tournaments closed
  */
-TournamentResult printTournamentStats(Tournament tournament,char* path_file);
+TournamentResult printTournamentStats(Tournament tournament, char *path_file);
 
-
+/**
+ * calculates and returns player's total play time in tournament
+ */
+int getPlayerTotalPlayTimeInTournament(Tournament tournament, Player player);
 #endif
