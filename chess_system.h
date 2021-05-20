@@ -1,167 +1,185 @@
-#ifndef CHESS_SYSTEM_H
-#define CHESS_SYSTEM_H
+#ifndef _CHESSSYSTEM_H
+#define _CHESSSYSTEM_H
 #include "map.h"
-#include "game.h"
+
 #include "tournament.h"
+#include "game.h"
+#include "player.h"
+#include <stdio.h>
 
 
-/** Type for defining the ChessResult */
-typedef enum ChessResult_t
-{
+typedef enum {
     CHESS_OUT_OF_MEMORY,
     CHESS_NULL_ARGUMENT,
-    CHESS_SUCCESS,
     CHESS_INVALID_ID,
-    CHESS_TOURNAMENT_ALREADY_EXISTS,
-    CHESS_TOURNAMENT_NOT_EXISTS,
-    CHESS_TOURNAMENT_ENDED,
-    CHESS_GAME_ALREADY_EXISTS,
     CHESS_INVALID_LOCATION,
     CHESS_INVALID_MAX_GAMES,
+    CHESS_TOURNAMENT_ALREADY_EXISTS,
+    CHESS_TOURNAMENT_NOT_EXIST,
+    CHESS_GAME_ALREADY_EXISTS,
     CHESS_INVALID_PLAY_TIME,
-    CHESS_EXCEEDED_GAMES
+    CHESS_EXCEEDED_GAMES,
+    CHESS_PLAYER_NOT_EXIST,
+    CHESS_TOURNAMENT_ENDED,
+    CHESS_NO_TOURNAMENTS_ENDED,
+    CHESS_SAVE_FAILURE,
+    CHESS_SUCCESS
+} ChessResult ;
 
-} ChessResult;
-
-/** Type for defining the Chess System */
-typedef struct ChessSystem_t
-{
-    Map tournaments;
-    Map players;
-} *ChessSystem;
-
-/** Functions for the tournaments map**/
-
-/**
- * TournamentKey is type of integer pointer - the id of the tournament.
- * TournamentData is type of Tournament - all tournaments that are taking place in the system.
+/*
+    Type for specifying who is the winner in a certain match
 */
-static void freeKeyTournament(MapKeyElement tournament_key);
-static void freeDataTournament(MapDataElement tournament_data);
-static MapKeyElement copyKeyTournament(MapKeyElement tournament_key);
-static MapDataElement copyElementData(MapDataElement tournament_data);
-static int compareKeyTournament(MapKeyElement tournament_key1, MapKeyElement tournament_key2);
-/** Functions for the players map**/
+// typedef enum {
+//     FIRST,
+//     SECOND,
+//     DRAW
+// } Winner;
+
+/** Type for representing a chess system that organizes chess tournaments */
+typedef struct chess_system_t *ChessSystem;
 
 /**
- * player_key is type of integer pointer - the id of the tournament.
- * tournament_data is type of Tournament - all tournaments that are taking place in the system.
-*/
-static void freeKeyPlayer(MapKeyElement player_key);
-static void freeDataPlayer(MapDataElement player_data);
-static MapKeyElement copyKeyPlayer(MapKeyElement player_key);
-static MapDataElement copyDataPlayer(MapDataElement player_data);
-static int compareKeyPlayer(MapKeyElement player_key1, MapKeyElement player_key2);
-
-/** Static Functions for convinience **/
-
-
-/**
- * returns if an integer is positive.
- */
-static bool isPositive(int number);
-
-/**
- * Check if location is valid
- */
-static bool isLocationValid(const char* location);
-
-/**
- * check each player games played in the tournament in comparison to the max allowed
- * returns true if both under the limit otherwise false
- */
-static bool checkExceededGames(int player1_id, int player2_id,int tournament_id, int max_games_per_player);
-
-/**
- * calculates and return the ID of the player who won the tournament.
- */
-
-static int calculateTournamentWinner(Map players, int tournament_id);
-
-/**
- * Iterates the players map and sums the players who played in a given tournament
- * returns the number of players
- */
-static int calculateNumOfPlayersInTournament(Map players, int tournament_id);
-
-/** Chess System Application **/
-
-/**
- * Allocates a new empty ChessSystem.
- * Creates a map for tournaments and players
+ * chessCreate: create an empty chess system.
+ *
+ * @return A new chess system in case of success, and NULL otherwise (e.g.
+ *     in case of an allocation error)
  */
 ChessSystem chessCreate();
 
 /**
- * Deallocates a given ChessSystem.
+ * chessDestroy: free a chess system, and all its contents, from
+ * memory.
+ *
+ * @param chess - the chess system to free from memory. A NULL value is
+ *     allowed, and in that case the function does nothing.
  */
 void chessDestroy(ChessSystem chess);
 
 /**
- * Adds a new tournament to the system
- * @param chess - the system to add the tournament to.
- * @param tournament_id - must be positive integer.
- * @param max_games_per_player - must be a positive integer.
- * @param tournament_location - must start with a Capital letter and english lowercase letters only.
- * @return -
- * CHESS_OUT_OF_MEMORY
- * CHESS_NULL_ARGUMENT
- * CHESS_INVALID_ID
- * CHESS_TOURNAMENT_ALREADY_EXISTS
- * CHESS_INVALID_LOCATION
- * CHESS_INVALID_MAX_GAMES
- * CHESS_SUCCESS
+ * chessAddTournament: add a new tournament to a chess system.
+ *
+ * @param chess - chess system to add the tournament to. Must be non-NULL.
+ * @param tournament_id - new tournament id. Must be non-negative, and unique.
+ * @param tournament_location - location in which the tournament take place. Must be non-empty.
+ *
+ * @return
+ *     CHESS_NULL_ARGUMENT - if chess/tournament_location are NULL.
+ *     CHESS_INVALID_ID - the tournament ID number is invalid.
+ *     CHESS_INVALID_LOCATION - if the name is empty or doesn't start with a capital letter (A -Z)
+ *                      followed by small letters (a -z) and spaces (' ').
+ *     CHESS_TOURNAMENT_ALREADY_EXIST - if a tournament with the given id already exist.
+ *     CHESS_SUCCESS - if tournament was added successfully.
  */
-ChessResult chessAddTournament(ChessSystem chess, int tournament_id,
-                         int max_games_per_player, const char* tournament_location);
-
+ChessResult chessAddTournament (ChessSystem chess, int tournament_id,
+                                int max_games_per_player, const char* tournament_location);
 
 /**
- * Adds a new game to the system
- * @param chess - the system to add the game to.
- * @param tournament_id - must be positive integer.
- * @param first_player - must be positive integer.
- * @param second_player - must be positive integer.
- * @param winner - must be positive integer.
- * @param play_time - must be positive integer.
- * @return -
- * CHESS_OUT_OF_MEMORY
- * CHESS_NULL_ARGUMENT
- * CHESS_INVALID_ID - also if the players have the same ID.
- * CHESS_TOURNAMENT_NOT_EXISTS
- * CHESS_TOURNAMENT_ENDED
- * CHESS_GAME_ALREADY_EXISTS - in THIS tournament.
- * CHESS_INVALID_PLAY_TIME
- * CHESS_EXCEEDED_GAMES - if a player played the max games he can in this tournament.
- * CHESS_SUCCESS
+ * chessAddGame: add a new match to a chess tournament.
+ *
+ * @param chess - chess system that contains the tournament. Must be non-NULL.
+ * @param tournament_id - the tournament id. Must be non-negative, and unique.
+ * @param first_player - first player id. Must be non-negative.
+ * @param second_player - second player id. Must be non-negative.
+ * @param winner - indicates the winner in the match. if it is FIRST_PLAYER, then the first player won.
+ *                 if it is SECOND_PLAYER, then the second player won, otherwise the match has ended with a draw.
+ * @param play_time - duration of the match in seconds. Must be non-negative.
+ *
+ * @return
+ *     CHESS_NULL_ARGUMENT - if chess is NULL.
+ *     CHESS_INVALID_ID - if the tournament ID number, either the players or the winner is invalid.
+ *     CHESS_TOURNAMENT_NOT_EXIST - if the tournament does not exist in the system.
+ *     CHESS_GAME_ALREADY_EXIST - if there is already a game in the tournament with the same two players.
+ *     CHESS_INVALID_PLAY_TIME - if the play time is negative.
+ *     CHESS_SUCCESS - if game was added successfully.
  */
-ChessResult chessAddGame(ChessSystem chess, int tournament_id,
-                        int first_player, int second_player,
-                        Winner winner, int play_time);
+ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player,
+                         int second_player, Winner winner, int play_time);
 
 /**
- * Removes a tournament from the system.
- * Updates the players statistics accordingly.
- * @param chess - the system to add the game to.
- * @param tournament_id - must be positive integer.
- * @return -
- * CHESS_NULL_ARGUMENT
- * CHESS_INVALID_ID
- * CHESS_TOURNAMENT_NOT_EXISTS
+ * chessRemoveTournament: removes the tournament and all the games played in it from the chess system.
+ *
+ * @param chess - chess system that contains the tournament. Must be non-NULL.
+ * @param tournament_id - the tournament id. Must be non-negative, and unique.
+ *
+ * @return
+ *     CHESS_NULL_ARGUMENT - if chess is NULL.
+ *     CHESS_INVALID_ID - if the tournament ID number is invalid.
+ *     CHESS_TOURNAMENT_NOT_EXIST - if the tournament does not exist in the system.
+ *     CHESS_SUCCESS - if tournament was removed successfully.
  */
-ChessResult chessRemoveTournament(ChessSystem chess, int tournament_id);
+ChessResult chessRemoveTournament (ChessSystem chess, int tournament_id);
 
 /**
- * Removes a player from the system.
- * Updates the players statistics accordingly.
- * @param chess - the system to add the game to.
- * @param tournament_id - must be positive integer.
- * @return -
- * CHESS_NULL_ARGUMENT
- * CHESS_INVALID_ID
- * CHESS_TOURNAMENT_NOT_EXISTS
+ * chessRemovePlayer: removes the player from the chess system.
+ *                      In games where the player has participated and not yet ended,
+ *                      the opponent is the winner automatically after removal.
+ *
+ * @param chess - chess system that contains the player. Must be non-NULL.
+ * @param player_id - the player id. Must be non-negative.
+ *
+ * @return
+ *     CHESS_NULL_ARGUMENT - if chess is NULL.
+ *     CHESS_INVALID_ID - if the player ID number is invalid.
+ *     CHESS_PLAYER_NOT_EXIST - if the player does not exist in the system.
+ *     CHESS_SUCCESS - if player was removed successfully.
  */
 ChessResult chessRemovePlayer(ChessSystem chess, int player_id);
 
+/**
+ * chessEndTournament: The function will end the tournament and calculate the id of the winner.
+ *                     The winner of the tournament is the player with the highest score.
+ *                     Once the tournament is over, no games can be added for that tournament.
+ *
+ * @param chess - chess system that contains the tournament. Must be non-NULL.
+ * @param tournament_id - the tournament id. Must be non-negative, and unique.
+ *
+ * @return
+ *     CHESS_NULL_ARGUMENT - if chess is NULL.
+ *     CHESS_INVALID_ID - if the tournament ID number is invalid.
+ *     CHESS_TOURNAMENT_NOT_EXIST - if the tournament does not exist in the system.
+ *     CHESS_SUCCESS - if tournament was ended successfully.
+ */
+ChessResult chessEndTournament (ChessSystem chess, int tournament_id);
 
-#endif
+/**
+ * chessCalculateAveragePlayTime: the function returns the average playing time for a particular player.
+ *
+ * @param chess - a chess system that contains the player. Must be non-NULL.
+ * @param player_id - player ID. Must be non-negative.
+ * @param chess_result - this variable will contain the returned error code.
+ * @return
+ *     CHESS_NULL_ARGUMENT - if chess is NULL.
+ *     CHESS_INVALID_ID - if the player ID number is invalid.
+ *     CHESS_PLAYER_NOT_EXIST - if the player does not exist in the system.
+ *     CHESS_SUCCESS - if average playing time was returned successfully.
+ */
+double chessCalculateAveragePlayTime (ChessSystem chess, int player_id, ChessResult* chess_result);
+
+/**
+ * chessSavePlayersLevels: prints the rating of all players in the system as
+ * explained in the *.pdf
+ *
+ * @param chess - a chess system. Must be non-NULL.
+ * @param file - an open, writable output stream, to which the ratings are printed.
+ * @return
+ *     CHESS_NULL_ARGUMENT - if chess is NULL.
+ *     CHESS_SAVE_FAILURE - if an error occurred while saving.
+ *     CHESS_SUCCESS - if the ratings was printed successfully.
+ */
+ChessResult chessSavePlayersLevels (ChessSystem chess, FILE* file);
+
+/**
+ * chessSaveTournamentStatistics: prints to the file the statistics for each tournament that ended as
+ * explained in the *.pdf
+ *
+ * @param chess - a chess system. Must be non-NULL.
+ * @param path_file - the file path which within it the tournament statistics will be saved.
+ * @return
+ *     CHESS_NULL_ARGUMENT - if chess is NULL.
+ *     CHESS_NO_TOURMENTS_ENDED - if there are no tournaments ended in the system.
+ *     CHESS_SAVE_FAILURE - if an error occurred while saving.
+ *     CHESS_SUCCESS - if the ratings was printed successfully.
+ */
+ChessResult chessSaveTournamentStatistics (ChessSystem chess, char* path_file);
+
+#endif //_CHESSSYSTEM_H
