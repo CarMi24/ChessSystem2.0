@@ -38,6 +38,7 @@ bool isPlayerInGame(Game game, int player_id);
 
 void removePlayerFromGame(Game Game, int index_player);
 
+
 int getFirstPlayerId(Game game);
 int getSecondPlayerId(Game game);
 int getGamePlayTime(Game game);
