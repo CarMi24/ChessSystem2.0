@@ -109,5 +109,7 @@ int getTournamentMaxGamesPerPlayer(Tournament tournament);
 int getTournamentWinnerId(Tournament tournament);
 int getTournamentLongestGameTime(Tournament tournament);
 bool getTournamentStatus(Tournament tournament);
+int getTournamentTotalPlayers(Tournament tournament);
+int AddTournamentTotalPlayers(Tournament tournament);
 
 #endif
