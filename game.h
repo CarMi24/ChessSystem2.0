@@ -1,45 +1,30 @@
 #ifndef GAME_H
 #define GAME_H
 
-#define PLAYER_1 1
-#define PLAYER_2 2
-typedef enum GameResult_t
-{
-    GAME_OUT_OF_MEMORY,
-    GAME_NULL_ARGUMENT,
-    GAME_ERROR
 
-}GameResult;
-typedef enum Winner_t
-{
-    FIRST=1,
-    SECOND,
-    DRAW
-} Winner;
+
+
+
+
 
 /** Type for defining the Game */
-typedef struct Game_t
-{
-     int first_player;
-    int second_player;
-    Winner winner;
-    int play_time;
-    int tournament_id;
-}
- *Game;
+typedef struct Game_t *Game;
 
-static void editGameWinner(Winner winner);
+typedef enum Winner_t GameWinner;
+
+static void editGameWinner(GameWinner winner);
 /**
  * Alloc new memory for a game and copy the data from the given one.
  * returns the clone
  */
 Game copyGame(Game game);
+
 /**
  * Alloc new memory for a game and sets the data recieved.
  * returns the game.
  */
 Game createGame(int first_player, int second_player,
-                Winner winner, int play_time);
+                GameWinner winner, int play_time);
 
 
 /**
@@ -62,11 +47,14 @@ bool isPlayerInGame(Game game, int player_id);
  * then, updates the winner using editGameWinner static funct.
  * if player_id does not match any of the players does nothing.
  */
-void removePlayer(Game game, int index_player);
+void removePlayerFromGame(Game game, int index_player);
 
 /**
- * returns the game time of a game
+ * Get funcs for players id and playtime
  */
-int getGameTime(Game game);
+int getGamePlayTime(Game game);
+int getFirstPlayerId(Game game);
+int getSecondPlayerId(Game game);
+
 
 #endif

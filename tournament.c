@@ -37,12 +37,7 @@ static MapDataElement copyGameData(MapDataElement game)
     {
         return NULL;
     }
-    Game clone = malloc(sizeof(clone));
-    if(clone == NULL)
-    {
-        return NULL;
-    }
-    clone = copyGame((Game)game);
+    Game clone = copyGame((Game)game);
     return clone;
 }
 
@@ -53,8 +48,7 @@ static void freeGameKey(MapKeyElement game_key)
 
 static void freeGameData(MapDataElement game)
 {
-    destroyGame(*(Game*)game);
-    free(game);
+    destroyGame((Game)game);
 }
 
 static int compareKeyGame(MapKeyElement game1, MapKeyElement game2)
@@ -100,8 +94,16 @@ Tournament createTournament(int tournament_id, char* location, int max_games_per
     return new_tournament;
 }
 
+void destroyTournament(Tournament tournament)
+{
+    destroyMap(tournament->tournament_games);
+    free(tournament->tournament_location);
+    free(tournament);
+}
+
 Tournament copyTournament(Tournament tournament)
 {
+    assert(tournament!=NULL);
     Tournament copy_tournament = malloc(sizeof(*copy_tournament));
     if (copy_tournament == NULL)
     {
@@ -112,8 +114,8 @@ Tournament copyTournament(Tournament tournament)
     copy_tournament->max_games_per_player = tournament->max_games_per_player;
     copy_tournament->winner_id = tournament->winner_id;
     copy_tournament->is_closed = tournament->is_closed;
-    Map tournament_games_map_copy =mapCopy(tournament->tournament_games);
-    if(tournament_games_map_copy==NULL)
+    Map tournament_games_map_copy = mapCopy(tournament->tournament_games);
+    if (tournament_games_map_copy == NULL)
     {
         free(copy_tournament);
         return NULL;
@@ -122,16 +124,10 @@ Tournament copyTournament(Tournament tournament)
     return copy_tournament;
 }
 
-void destroyTournament(Tournament tournament)
-{
-    destroyMap(tournament->tournament_games);
-    free(tournament->tournament_location);
-    free(tournament);
-}
-
-bool checkIfGameExists(Tournament tournament, Game game)
+bool checkIfGameInTournament(Tournament tournament, Game game)
 {
     assert(tournament!=NULL && game != NULL);
+    
     Game tmp = NULL;
     MAP_FOREACH(int*,key,tournament->tournament_games)
     {
@@ -145,46 +141,31 @@ bool checkIfGameExists(Tournament tournament, Game game)
     return false;
 }
 
-TournamentResult addGameToTournament(Tournament tournament, Game game)
+void addGameToTournament(Tournament tournament, Game game)
 {
-    if(tournament == NULL || game == NULL)
-    {
-        return TOURNAMENT_NULL_ARGUMENT;
-    }
+    assert(tournament!=NULL && game!=NULL);
     int key = mapGetSize(tournament->tournament_games) + 1;
-    if(mapPut(tournament->tournament_games,&key,game)!=MAP_SUCCESS)
-    {
-        return TOURNAMENT_ERROR;
-    }
-    destroyGame(game);
-    return TOURNAMENT_SUCCESS;
+    assert(mapPut(tournament->tournament_games,&key,game)==MAP_SUCCESS);
 }
 
-TournamentResult removePlayerFromTournament(Tournament tournament, int player_id)
+void removePlayerFromTournament(Tournament tournament, int player_id)
 {
-    if(tournament == NULL)
-    {
-        return TOURNAMENT_NULL_ARGUMENT;
-    }
+    assert(tournament!=NULL);
+    
     Game tmp;
     MAP_FOREACH(int*,key,tournament->tournament_games)
     {
         tmp = mapGet(tournament->tournament_games,key);
-        removePlayer(tmp,player_id);
+        removePlayerFromGame(tmp,player_id);
         freeGameKey(key);
     }
-    return TOURNAMENT_SUCCESS;
 }
 
-TournamentResult endTournament(Tournament tournament, int winner_id)
+void endTournament(Tournament tournament, int winner_id)
 {
-    if(tournament == NULL)
-    {
-        return TOURNAMENT_NULL_ARGUMENT;
-    }
+    assert(tournament!=NULL);
     tournament->is_closed = true;
     tournament->winner_id = winner_id;
-    return TOURNAMENT_SUCCESS;
 }
 
 int getTournamentLongestTime(Tournament tournament)
@@ -207,11 +188,50 @@ double calculateAverageTournamentGameTime(Tournament tournament)
     return avg;
 }
 
+int getTournamentId(Tournament tournament)
+{
+    return tournament->tournament_id;
+}
+char *getTournamentLocation(Tournament tournament)
+{
+    return tournament->tournament_location;
+}
+Map getTournamentGamesMap(Tournament tournament)
+{
+    return tournament->tournament_games;
+}
+int getTournamentMaxGamesPerPlayer(Tournament tournament)
+{
+    return tournament->max_games_per_player;
+}
+int getTournamentWinnerId(Tournament tournament)
+{
+    return tournament->winner_id;
+}
+int getTournamentLongestGameTime(Tournament tournament)
+{
+    return tournament->longest_game_time;
+}
 bool getTournamentStatus(Tournament tournament)
 {
     return tournament->is_closed;
 }
 
+int getPlayerTotalPlayTimeInTournament(Tournament tournament, Player player)
+{
+    int total_game_time_in_tournament = 0;
+    MAP_FOREACH(int *, key, tournament->tournament_games)
+    {
+        Game game = mapGet(tournament->tournament_games,key);
+        int player_id = getPlayerId(player);
+        if (player_id == getFirstPlayerId(game) || player_id == getSecondPlayerId(game))
+        {
+            total_game_time_in_tournament += getGamePlayTime(game);
+        }
+        freeGameKey(key);
+    }
+    return total_game_time_in_tournament;
+}
 
 
 

@@ -6,23 +6,29 @@ struct Game_t
 {
     int first_player;
     int second_player;
-    Winner winner;
+    GameWinner winner;
     int play_time;
     int tournament_id;
 };
 
-static void editGameWinner(Game game, Winner winner)
+typedef enum Winner_t
+{
+    FIRST=1,
+    SECOND,
+    DRAW
+}GameWinner;
+
+static void editGameWinner(Game game, GameWinner winner)
 {
     game->winner = winner;
 }
 
 Game createGame(int tournament_id, int first_player, int second_player,
-                Winner winner, int play_time, GameResult game_result)
+                GameWinner winner, int play_time)
 {
     Game game = malloc(sizeof(*game));
     if (game == NULL)
     {
-        game_result = GAME_OUT_OF_MEMORY;
         return NULL;
     }
     game->tournament_id = tournament_id;
@@ -32,28 +38,27 @@ Game createGame(int tournament_id, int first_player, int second_player,
     game->play_time = play_time;
     return game;
 }
-
 Game copyGame(Game game)
 {
-    Game newGame = malloc(sizeof(*newGame));
-    if (newGame == NULL)
+    Game new_game = malloc(sizeof(*new_game));
+    if (new_game == NULL)
     {
         return NULL;
     }
 
-    newGame->first_player = game->second_player;
-    newGame->second_player = game->second_player;
-    newGame->winner = game->winner;
-    newGame->play_time = game->play_time;
-    newGame->tournament_id = game->tournament_id;
-    return newGame;
+    new_game->first_player = game->second_player;
+    new_game->second_player = game->second_player;
+    new_game->winner = game->winner;
+    new_game->play_time = game->play_time;
+    new_game->tournament_id = game->tournament_id;
+    return new_game;
 }
 
 void destroyGame(Game game)
 {
     if (game == NULL)
     {
-        return NULL;
+        return;
     }
     free(game);
 }
@@ -69,16 +74,35 @@ bool compareGames(Game game1, Game game2)
 
 bool isPlayerInGame(Game game, int player_id)
 {
-    return ((game->first_player == player_id) || (game->second_player == player_id) ? true : false);
+    return ((game->first_player == player_id) || (game->second_player == player_id));
 }
-void removePlayer(Game game, int player_id)
+
+void removePlayerFromGame(Game game, int player_id)
 {
+    assert(game!=NULL);
+
     if (game->first_player == player_id)
     {
         game->first_player = 0;
+        editGameWinner(game, SECOND);
     }
-    else
+    else if(game->second_player == player_id)
     {
         game->second_player = 0;
+        editGameWinner(game, FIRST);
     }
+}
+
+
+int getFirstPlayerId(Game game)
+{
+    return game->first_player;
+}
+int getSecondPlayerId(Game game)
+{
+    return game->second_player;
+}
+int getGamePlayTime(Game game)
+{
+    return game->play_time;
 }
