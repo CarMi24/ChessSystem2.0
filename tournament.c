@@ -93,7 +93,7 @@ static void updateTournamentTotalPlayers(Tournament tournament, int player_1,int
 
 Tournament createTournament(int tournament_id, const char *location, int max_games_per_player)
 {
-    Tournament new_tournament = malloc(sizeof(new_tournament));
+    Tournament new_tournament = malloc(sizeof(*new_tournament));
     if (new_tournament == NULL)
     {
         return NULL;
@@ -126,30 +126,30 @@ void destroyTournament(Tournament tournament)
 {
     mapDestroy(tournament->tournament_games);
     free(tournament->tournament_location);
-    free(tournament);
+    free((Tournament)tournament);
 }
 
 Tournament copyTournament(Tournament tournament)
 {
     assert(tournament != NULL);
-    Tournament copy_tournament = malloc(sizeof(*copy_tournament));
-    if (copy_tournament == NULL)
+    Tournament clone = createTournament(tournament->tournament_id,tournament->tournament_location,tournament->max_games_per_player);
+    if (clone == NULL)
     {
         return NULL;
     }
-    copy_tournament->tournament_id = tournament->tournament_id;
-    copy_tournament->tournament_location = tournament->tournament_location;
-    copy_tournament->max_games_per_player = tournament->max_games_per_player;
-    copy_tournament->winner_id = tournament->winner_id;
-    copy_tournament->is_closed = tournament->is_closed;
-    Map tournament_games_map_copy = mapCopy(tournament->tournament_games);
-    if (tournament_games_map_copy == NULL)
+    mapDestroy(clone->tournament_games);
+    clone->tournament_games = mapCopy(tournament->tournament_games);
+    if(clone->tournament_games == NULL)
     {
-        free(copy_tournament);
+        destroyTournament(clone);
         return NULL;
     }
-    copy_tournament->tournament_games = tournament_games_map_copy;
-    return copy_tournament;
+    clone->is_closed = tournament->is_closed;
+    clone->total_players = tournament->total_players;
+    clone->longest_game_time = tournament->longest_game_time;
+    clone->winner_id = tournament->winner_id;
+
+    return clone;
 }
 
 bool checkIfGameInTournament(Tournament tournament, Game game)

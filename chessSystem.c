@@ -411,9 +411,10 @@ ChessResult chessAddTournament(ChessSystem chess, int tournament_id, int max_gam
     }
     if (mapPut(chess->tournaments, &tournament_id, new_tournament) == MAP_OUT_OF_MEMORY)
     {
+        destroyTournament(new_tournament); 
         return CHESS_OUT_OF_MEMORY;
     }
-    free(new_tournament); //(**)
+    destroyTournament(new_tournament); 
     return CHESS_SUCCESS;
 }
 

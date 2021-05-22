@@ -126,13 +126,14 @@ static MapResult insertNewNode(Map map, MapKeyElement key, MapDataElement data, 
 static void removeNextNode(Map map,Node remove_next)
 {
     Node new_next = NULL;
-    if(remove_next != NULL)
+    if(remove_next == NULL)
     {
         new_next = map->list->next;
         map->freeData(map->list->data_element);
         map->freeKey(map->list->key_element);
         free(map->list);
         map->list = new_next;
+        return;
     }
 
     new_next = remove_next->next->next;
@@ -206,12 +207,12 @@ Map mapCopy(Map map)
     Node temp_clone = clone->list;
     while(temp!=NULL)
     {
-        if(insertNewNode(clone,temp->key_element,temp->key_element,temp_clone)!=MAP_SUCCESS)
+        if(insertNewNode(clone,temp->key_element,temp->data_element,temp_clone)!=MAP_SUCCESS)
         {
             mapDestroy(clone);
             return NULL;
         }
-        temp_clone=temp_clone->next;
+        temp_clone= temp_clone == NULL ? clone->list : temp_clone->next;
         temp = temp->next;
     }
 
