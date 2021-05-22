@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-
+#include <stdlib.h>
 typedef struct Tournament_t
 {
     int tournament_id;
@@ -61,6 +61,32 @@ static void updateLongestGameTime(Tournament tournament, int new_time)
     {
         tournament->longest_game_time = new_time;
     }
+}
+
+static int absoluteValue(int num)
+{
+    return num>0 ? num : (num)*(-1);
+}
+
+static void updateTournamentTotalPlayers(Tournament tournament, int player_1,int player_2)
+{
+    int players_to_add = 2;
+    Game tmp_game = NULL;
+    MAP_FOREACH(int*,key,tournament->tournament_games)
+    {
+        tmp_game = mapGet(tournament->tournament_games,key);
+        if(absoluteValue(getFirstPlayerId(tmp_game))==player_1)
+        {
+            players_to_add--;
+        }
+        if(absoluteValue(getSecondPlayerId(tmp_game))==player_2)
+        {
+            players_to_add--;
+        }
+        free(key);
+    }
+    players_to_add = (players_to_add < 0) ? 0 : players_to_add;
+    tournament->total_players += players_to_add;
 }
 
 Tournament createTournament(int tournament_id, char *location, int max_games_per_player)
@@ -146,29 +172,10 @@ void addGameToTournament(Tournament tournament, Game game)
     assert(tournament != NULL && game != NULL);
     int key = mapGetSize(tournament->tournament_games) + 1;
     /*update total players in tournament*/
-    Player tmp_player1 = createPlayer(getFirstPlayerId(game));
-    if (tmp_player1 == NULL)
-    {
-        return NULL;
-    }
-    Player tmp_player2 = createPlayer(getSecondPlayerId(game));
-    if (tmp_player2 == NULL)
-    {
-        destroyPlayer(tmp_player1);
-        return NULL;
-    }
-    if (!checkIfPlayerInTournament(tmp_player1,getTournamentId(tournament)))
-    {
-        addTournamentTotalPlayers(tournament);
-    }
-    if (!checkIfPlayerInTournament(tmp_player2,getTournamentId(tournament)))
-    {
-        addTournamentTotalPlayers(tournament);
-    }
-    destroyPlayer(tmp_player1);
-    destroyPlayer(tmp_player2);
-    /**/
     assert(mapPut(tournament->tournament_games, &key, game) == MAP_SUCCESS);
+    int player_1 = getFirstPlayerId(game);
+    int player_2 = getSecondPlayerId(game);
+    updateTournamentTotalPlayers(tournament,player_1,player_2);
 }
 
 void removePlayerFromTournament(Tournament tournament, int player_id)
@@ -243,10 +250,8 @@ int getTournamentTotalPlayers(Tournament tournament)
 {
     return tournament->total_players;
 }
-int AddTournamentTotalPlayers(Tournament tournament)
-{
-    tournament->total_players = tournament->total_players + 1;
-}
+
+
 
 int getPlayerTotalPlayTimeInTournament(Tournament tournament, Player player)
 {

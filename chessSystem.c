@@ -95,24 +95,22 @@ static bool checkExceededGames(ChessSystem chess, int player1_id, int player2_id
 
     return false;
 }
-static void bubbleSort(int *levels, int n)
-{
-}
 
-static bool checkIfGameExists(ChessSystem chess, Game game)
-{
-    Tournament tmp = NULL;
-    MAP_FOREACH(int *, tournament_id, chess->tournaments)
-    {
-        tmp = mapGet(chess->tournaments, tournament_id);
-        if (checkIfGameInTournament(tmp, game))
-        {
-            return true;
-        }
-        free(tournament_id);
-    }
-    return false;
-}
+/**Eventually, No need to check in all system only in tournament.
+// static bool checkIfGameExists(ChessSystem chess, Game game)
+// {
+//     Tournament tmp = NULL;
+//     MAP_FOREACH(int *, tournament_id, chess->tournaments)
+//     {
+//         tmp = mapGet(chess->tournaments, tournament_id);
+//         if (checkIfGameInTournament(tmp, game))
+//         {
+//             return true;
+//         }
+//         free(tournament_id);
+//     }
+//     return false;
+// }
 /**
  * search for a player in players map of system.
  * if found, returns it, otherwise creates a new player.
@@ -312,11 +310,46 @@ static void removeTouranmentStatsFromPlayers(ChessSystem chess, Tournament tourn
     }
 }
 
+static ChessResult fillPlayersLevelMap(Map player_level_map, Map players)
+{
+    PlayerLevel new_player_level =  NULL;
+    Player player = NULL;
+    MAP_FOREACH(int *, keyInt, players) // run on players map, for each player create new PlayerLevel struct and add it to player_level_map
+    {
+        player = mapGet(players, keyInt);
+        new_player_level = createPlayerLevel(*keyInt, getPlayerLevel(player));
+        if(new_player_level == NULL || mapPut(player_level_map, new_player_level, keyInt) == MAP_OUT_OF_MEMORY)
+        {
+            destroyPlayerLevel(new_player_level);
+            return CHESS_OUT_OF_MEMORY;
+        }
+        destroyPlayerLevel(new_player_level);
+        free(keyInt);
+    }
+    return CHESS_SUCCESS;
+
+}
+
+static ChessResult writePlayersLevelToFile(Map player_level_map,FILE* file)
+{
+    MAP_FOREACH(PlayerLevel, key, player_level_map) // run on PlayerLevelMap and print id and level of each player
+    {
+        if (fprintf(file, "%d %.2f\n", getPlayerLevelId(key), getPlayerLevelLevel(key)) < 0)
+        {
+            destroyPlayerLevel(key);
+            return CHESS_SAVE_FAILURE;
+        }
+        destroyPlayerLevel(key);
+    }
+    return CHESS_SUCCESS;
+
+}
 static bool NoTournamentsEnded(Map tournaments_map)
 {
+    Tournament current_tournament = NULL;
     MAP_FOREACH(int *, tournamentKey, tournaments_map)
     {
-        Tournament current_tournament = mapGet(tournaments_map, tournamentKey);
+        current_tournament = mapGet(tournaments_map, tournamentKey);
         if (getTournamentStatus(current_tournament))
         {
             freeKeyInt(tournamentKey);
@@ -326,6 +359,8 @@ static bool NoTournamentsEnded(Map tournaments_map)
     }
     return true;
 }
+
+
 
 //updated by Ori marked (**)
 ChessSystem chessCreate()
@@ -424,7 +459,7 @@ ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player,
     {
         return CHESS_OUT_OF_MEMORY;
     }
-    if (checkIfGameExists(chess, new_game)) //(**)
+    if (checkIfGameInTournament(tournament_to_add,new_game)) //(**)
     {
         destroyGame(new_game);
         return CHESS_GAME_ALREADY_EXISTS;
@@ -565,28 +600,18 @@ ChessResult chessSavePlayersLevels(ChessSystem chess, FILE *file) //WHEN DO YOU 
     {
         return CHESS_OUT_OF_MEMORY;
     }
-    MapResult map_result;
-    MAP_FOREACH(int *, keyInt, chess->players) // run on players map, for each player create new PlayerLevel struct and add it to player_level_map
+    if(fillPlayersLevelMap(player_level_map,chess->players)==CHESS_OUT_OF_MEMORY)
     {
-        Player player = mapGet(chess->players, keyInt);
-        PlayerLevel new_player_level = createPlayerLevel(*keyInt, getPlayerLevel(player));
-        map_result = mapPut(player_level_map, new_player_level, keyInt);
-        if (map_result == MAP_OUT_OF_MEMORY)
-        {
-            return CHESS_OUT_OF_MEMORY;
-        }
-        free(keyInt);
+        mapDestroy(player_level_map);
+        return CHESS_OUT_OF_MEMORY;
     }
-
-    MAP_FOREACH(PlayerLevel, key, player_level_map) // run on PlayerLevelMap and print id and level of each player
+   
+    if(writePlayersLevelToFile(player_level_map,file) == CHESS_SAVE_FAILURE)
     {
-        if (fprintf(file, "%d %.2f\n", getPlayerLevelId(key), getPlayerLevelLevel(key)) < 0)
-        {
-            destroyPlayerLevel((PlayerLevel)key);
-            return CHESS_SAVE_FAILURE;
-        }
-        destroyPlayerLevel((PlayerLevel)key);
+        mapDestroy(player_level_map);
+        return CHESS_SAVE_FAILURE;
     }
+    
     mapDestroy(player_level_map);
     return CHESS_SUCCESS;
 }
@@ -601,7 +626,7 @@ ChessResult chessSaveTournamentStatistics(ChessSystem chess, char *path_file)
     {
         return CHESS_NO_TOURNAMENTS_ENDED;
     }
-    FILE *file = fopen(path_file, "w");
+    FILE *file = fopen(path_file, 'w');
     if (file == NULL)
     {
         return CHESS_SAVE_FAILURE;
@@ -611,14 +636,14 @@ ChessResult chessSaveTournamentStatistics(ChessSystem chess, char *path_file)
     Map tournament_game_map = NULL;
     MAP_FOREACH(int *, tournamentKey, chess->tournaments)
     {
+        tournament = mapGet(chess->tournaments, tournamentKey);
         if (getTournamentStatus(tournament))
         {
-            tournament = mapGet(chess->tournaments, tournamentKey);
             tournament_game_map = getTournamentGamesMap(tournament);
-           if (fprintf(file, "%d\n%d\n%.2f\n%s\n%d\n%d\n",
+            if (fprintf("%d\n%d\n%.2f\n%s\n%d\n%d\n",
                         getTournamentWinnerId(tournament),
                         getTournamentLongestGameTime(tournament),
-                        calculateAverageTournamentGameTime(tournament),
+                        calculateTournamentAverageGameTime(tournament),
                         getTournamentLocation(tournament),
                         mapGetSize(tournament_game_map),
                         getTournamentTotalPlayers(tournament)) < 0)

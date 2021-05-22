@@ -83,12 +83,12 @@ void removePlayerFromGame(Game game, int player_id)
 
     if (game->first_player == player_id)
     {
-        game->first_player = 0;
+        game->first_player *= -1;
         editGameWinner(game, SECOND);
     }
     else if(game->second_player == player_id)
     {
-        game->second_player = 0;
+        game->second_player *= -1;
         editGameWinner(game, FIRST);
     }
 }

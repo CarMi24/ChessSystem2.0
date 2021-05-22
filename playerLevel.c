@@ -1,4 +1,5 @@
 #include "playerLevel.h"
+#include <stdlib.h>
 
 struct player_level_t
 {
@@ -42,13 +43,4 @@ int comparePlayerLevel(PlayerLevel player_level1, PlayerLevel player_level2)
         return ((player_level1->level > player_level2->level) ? -1 : 1);
     }
     return ((player_level1->id > player_level2->id) ? 1 : -1);
-}
-
-int getPlayerLevelId(PlayerLevel player_level)
-{
-    return player_level->id;
-}
-double getPlayerLevelLevel(PlayerLevel player_level)
-{
-    return player_level->level;
 }
