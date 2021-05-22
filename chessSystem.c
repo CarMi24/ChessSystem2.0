@@ -601,7 +601,7 @@ ChessResult chessSaveTournamentStatistics(ChessSystem chess, char *path_file)
     {
         return CHESS_NO_TOURNAMENTS_ENDED;
     }
-    FILE *file = fopen(path_file, 'w');
+    FILE *file = fopen(path_file, "w");
     if (file == NULL)
     {
         return CHESS_SAVE_FAILURE;
@@ -615,10 +615,10 @@ ChessResult chessSaveTournamentStatistics(ChessSystem chess, char *path_file)
         {
             tournament = mapGet(chess->tournaments, tournamentKey);
             tournament_game_map = getTournamentGamesMap(tournament);
-            if (fprintf("%d\n%d\n%.2f\n%s\n%d\n%d\n",
+           if (fprintf(file, "%d\n%d\n%.2f\n%s\n%d\n%d\n",
                         getTournamentWinnerId(tournament),
                         getTournamentLongestGameTime(tournament),
-                        calculateTournamentAverageGameTime(tournament),
+                        calculateAverageTournamentGameTime(tournament),
                         getTournamentLocation(tournament),
                         mapGetSize(tournament_game_map),
                         getTournamentTotalPlayers(tournament)) < 0)
