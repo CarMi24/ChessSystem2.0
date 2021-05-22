@@ -3,7 +3,9 @@
 #include <string.h>
 #include <assert.h>
 #include <stdlib.h>
-typedef struct Tournament_t
+
+
+struct Tournament_t
 {
     int tournament_id;
     char *tournament_location;
@@ -122,7 +124,7 @@ Tournament createTournament(int tournament_id, char *location, int max_games_per
 
 void destroyTournament(Tournament tournament)
 {
-    destroyMap(tournament->tournament_games);
+    mapDestroy(tournament->tournament_games);
     free(tournament->tournament_location);
     free(tournament);
 }
@@ -170,12 +172,14 @@ bool checkIfGameInTournament(Tournament tournament, Game game)
 void addGameToTournament(Tournament tournament, Game game)
 {
     assert(tournament != NULL && game != NULL);
-    int key = mapGetSize(tournament->tournament_games) + 1;
     /*update total players in tournament*/
-    assert(mapPut(tournament->tournament_games, &key, game) == MAP_SUCCESS);
-    int player_1 = getFirstPlayerId(game);
+     int player_1 = getFirstPlayerId(game);
     int player_2 = getSecondPlayerId(game);
     updateTournamentTotalPlayers(tournament,player_1,player_2);
+    updateLongestGameTime(tournament,getGamePlayTime(game));
+    int key = mapGetSize(tournament->tournament_games) + 1;
+    mapPut(tournament->tournament_games, &key, game);
+   
 }
 
 void removePlayerFromTournament(Tournament tournament, int player_id)
@@ -211,7 +215,7 @@ double calculateAverageTournamentGameTime(Tournament tournament)
     MAP_FOREACH(int *, key, tournament->tournament_games)
     {
         tmp = mapGet(tournament->tournament_games, key);
-        avg += getGameTime(tmp);
+        avg += getGamePlayTime(tmp);
         freeGameKey(key);
     }
     avg /= mapGetSize(tournament->tournament_games);

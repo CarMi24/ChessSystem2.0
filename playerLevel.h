@@ -2,7 +2,7 @@
 #define PLAYERLEVEL_H
 
 #include "map.h"
-#include "stdio.h"
+#include <stdio.h>
 
 //struce holds player's id and player's level
 typedef struct player_level_t *PlayerLevel;
@@ -19,5 +19,10 @@ void destroyPlayerLevel(PlayerLevel player_level);
 //functions for comparing between two PlayerLevel structs
 //compares first by levels, if levels are even , compares by players id's
 int comparePlayerLevel(PlayerLevel player_level1, PlayerLevel player_level2);
+
+int getPlayerLevelId(PlayerLevel player);
+
+double getPlayerLevelLevel(PlayerLevel player);
+
 
 #endif

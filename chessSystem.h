@@ -2,9 +2,9 @@
 #define _CHESSSYSTEM_H
 #include "map.h"
 #include "game.h"
-#include "tournament.h"
 #include "player.h"
 #include "playerLevel.h"
+#include "tournament.h"
 #include <stdio.h>
 
 

@@ -1,5 +1,6 @@
 #include "chessSystem.h"
 
+#include <assert.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -8,6 +9,7 @@
 #define UPPER_A 'A'
 #define UPPER_Z 'Z'
 #define SPACE ' '
+#define WRITE "w"
 
 struct chess_system_t
 {
@@ -129,9 +131,9 @@ static Player getOrCreatePlayerInSystem(ChessSystem chess, int player_id)
  * if the player does not exist in the system, it means its a new player,
  * put it in the players map and destroys it. (because mapPut creates a copy).
  */
-static addNewPlayerToSystem(ChessSystem chess, int player_id, Player player)
+static void addNewPlayerToSystem(ChessSystem chess, int player_id, Player player)
 {
-    if (!mapContains(chess->players, player_id))
+    if (!mapContains(chess->players, &player_id))
     {
         mapPut(chess->players, player_id, player);
         destroyPlayer(player);
@@ -160,13 +162,13 @@ static bool updatePlayersMap(ChessSystem chess, int first_player, int second_pla
     }
     if (player_2 != NULL)
     {
-        if (!mapContains(chess->players, second_player))
+        if (!mapContains(chess->players, &second_player))
         {
             free(player_2);
         }
         return false;
     }
-    if (!mapContains(chess->players, first_player))
+    if (!mapContains(chess->players, &first_player))
     {
         free(player_1);
     }
@@ -344,7 +346,7 @@ static ChessResult writePlayersLevelToFile(Map player_level_map,FILE* file)
     return CHESS_SUCCESS;
 
 }
-static bool NoTournamentsEnded(Map tournaments_map)
+static bool noTournamentsEnded(Map tournaments_map)
 {
     Tournament current_tournament = NULL;
     MAP_FOREACH(int *, tournamentKey, tournaments_map)
@@ -480,7 +482,6 @@ ChessResult chessAddGame(ChessSystem chess, int tournament_id, int first_player,
         return CHESS_OUT_OF_MEMORY;
     }
     addGameToTournament(tournament_to_add, new_game); //return value? it's void.
-    updateLongestGameTime(tournament_to_add, play_time);
     destroyGame(new_game);
     return CHESS_SUCCESS;
 }
@@ -626,7 +627,7 @@ ChessResult chessSaveTournamentStatistics(ChessSystem chess, char *path_file)
     {
         return CHESS_NO_TOURNAMENTS_ENDED;
     }
-    FILE *file = fopen(path_file, 'w');
+    FILE *file = fopen(path_file, WRITE);
     if (file == NULL)
     {
         return CHESS_SAVE_FAILURE;
@@ -640,10 +641,10 @@ ChessResult chessSaveTournamentStatistics(ChessSystem chess, char *path_file)
         if (getTournamentStatus(tournament))
         {
             tournament_game_map = getTournamentGamesMap(tournament);
-            if (fprintf("%d\n%d\n%.2f\n%s\n%d\n%d\n",
+            if (fprintf(file,"%d\n%d\n%.2f\n%s\n%d\n%d\n",
                         getTournamentWinnerId(tournament),
                         getTournamentLongestGameTime(tournament),
-                        calculateTournamentAverageGameTime(tournament),
+                        calculateAverageTournamentGameTime(tournament),
                         getTournamentLocation(tournament),
                         mapGetSize(tournament_game_map),
                         getTournamentTotalPlayers(tournament)) < 0)

@@ -1,6 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include "chessSystem.h"
 
 
 
@@ -10,9 +11,8 @@
 /** Type for defining the Game */
 typedef struct Game_t *Game;
 
-typedef enum Winner_t GameWinner;
 
-static void editGameWinner(GameWinner winner);
+//static void editGameWinner(GameWinner winner);
 /**
  * Alloc new memory for a game and copy the data from the given one.
  * returns the clone
@@ -23,8 +23,8 @@ Game copyGame(Game game);
  * Alloc new memory for a game and sets the data recieved.
  * returns the game.
  */
-Game createGame(int first_player, int second_player,
-                GameWinner winner, int play_time);
+Game createGame(int tournament_id,int first_player, int second_player,
+                int winner, int play_time);
 
 
 /**

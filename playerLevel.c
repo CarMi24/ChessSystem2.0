@@ -44,3 +44,14 @@ int comparePlayerLevel(PlayerLevel player_level1, PlayerLevel player_level2)
     }
     return ((player_level1->id > player_level2->id) ? 1 : -1);
 }
+
+
+
+int getPlayerLevelId(PlayerLevel player)
+{
+    return player->id;
+}
+double getPlayerLevelLevel(PlayerLevel player)
+{
+    return player->level;
+}

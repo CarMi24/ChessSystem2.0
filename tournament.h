@@ -18,18 +18,18 @@ typedef struct Tournament_t *Tournament;
  * GameData is type of Game - games that are taken place in the tournament.
  * The key will be the tournament_id where the game takes place.
 */
-static MapKeyElement copyGameKey(MapKeyElement game_key);
-static MapDataElement copyGameData(MapDataElement game);
-static void freeGameKey(MapKeyElement game_key);
-static void freeGameData(MapDataElement game);
-static int compareKeyGame(MapKeyElement game1, MapKeyElement game2);
+// static MapKeyElement copyGameKey(MapKeyElement game_key);
+// static MapDataElement copyGameData(MapDataElement game);
+// static void freeGameKey(MapKeyElement game_key);
+// static void freeGameData(MapDataElement game);
+// static int compareKeyGame(MapKeyElement game1, MapKeyElement game2);
 
 
 /**
  * updates the longest game time if new_time is bigger.
  * otherwise does nothing. 
  */
-static void updateLongestGameTime(Tournament tournament, int new_time);
+//static void updateLongestGameTime(Tournament tournament, int new_time);
 
 
 

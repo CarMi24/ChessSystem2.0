@@ -101,6 +101,11 @@ static int compareInts(MapKeyElement n1, MapKeyElement n2)
 }
 /** Functions for the tournaments map**/
 
+static double calculatePlayerLevel(Player player)
+{
+    return ((double)((6 * player->total_wins) - (10 * player->total_losses) + (2 * player->total_draws)) / ((double)TOTAL_GAMES));
+}
+
 static void updateTotal(Player player, int index_outcome, int play_time)
 {
    
@@ -111,11 +116,6 @@ static void updateTotal(Player player, int index_outcome, int play_time)
     player->level = calculatePlayerLevel(player);
 }
 
-
-static double calculatePlayerLevel(Player player)
-{
-    return ((double)((6 * player->total_wins) - (10 * player->total_losses) + (2 * player->total_draws)) / ((double)TOTAL_GAMES));
-}
 
 Player createPlayer(int player_id)
 {
@@ -207,12 +207,14 @@ bool updatePlayerTournamentStats(Player player, int tournament_id, int index_out
         }
         mapPut(player->tournament_rates,&tournament_id,temp_stats);
         free(temp_stats);
+        updateTotal(player, index_outcome, play_time);
         return true;
     }
     to_update->draws = index_outcome == TIE ? to_update->draws+1:to_update->draws;
     to_update->losses = index_outcome == LOSE ? to_update->losses+1:to_update->losses;
     to_update->wins = index_outcome == WIN ? to_update->wins+1:to_update->wins;
     to_update->total_games_in_tournament++;
+    updateTotal(player, index_outcome, play_time);
     return true;
 }
 

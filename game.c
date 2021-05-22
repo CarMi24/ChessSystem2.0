@@ -1,4 +1,5 @@
 #include "game.h"
+#include <assert.h>
 #include <stdbool.h>
 #include <stdlib.h>
 
@@ -6,25 +7,19 @@ struct Game_t
 {
     int first_player;
     int second_player;
-    GameWinner winner;
+    int winner;
     int play_time;
     int tournament_id;
 };
 
-typedef enum Winner_t
-{
-    FIRST=1,
-    SECOND,
-    DRAW
-}GameWinner;
 
-static void editGameWinner(Game game, GameWinner winner)
+static void editGameWinner(Game game, int winner)
 {
     game->winner = winner;
 }
 
 Game createGame(int tournament_id, int first_player, int second_player,
-                GameWinner winner, int play_time)
+                int winner, int play_time)
 {
     Game game = malloc(sizeof(*game));
     if (game == NULL)
@@ -84,12 +79,12 @@ void removePlayerFromGame(Game game, int player_id)
     if (game->first_player == player_id)
     {
         game->first_player *= -1;
-        editGameWinner(game, SECOND);
+        editGameWinner(game, SECOND_PLAYER);
     }
     else if(game->second_player == player_id)
     {
         game->second_player *= -1;
-        editGameWinner(game, FIRST);
+        editGameWinner(game, FIRST_PLAYER);
     }
 }
 
