@@ -1,10 +1,10 @@
 #ifndef _CHESSSYSTEM_H
 #define _CHESSSYSTEM_H
 #include "map.h"
+#include "tournament.h"
 #include "game.h"
 #include "player.h"
 #include "playerLevel.h"
-#include "tournament.h"
 #include <stdio.h>
 
 

@@ -1,7 +1,12 @@
 #include "game.h"
-#include <assert.h>
+
 #include <stdbool.h>
 #include <stdlib.h>
+#include <assert.h>
+
+
+#define FIRST 0
+#define SECOND 1
 
 struct Game_t
 {
@@ -79,12 +84,12 @@ void removePlayerFromGame(Game game, int player_id)
     if (game->first_player == player_id)
     {
         game->first_player *= -1;
-        editGameWinner(game, SECOND_PLAYER);
+        editGameWinner(game, SECOND);
     }
     else if(game->second_player == player_id)
     {
         game->second_player *= -1;
-        editGameWinner(game, FIRST_PLAYER);
+        editGameWinner(game, FIRST);
     }
 }
 
@@ -101,3 +106,6 @@ int getGamePlayTime(Game game)
 {
     return game->play_time;
 }
+
+#undef FIRST
+#undef SECOND

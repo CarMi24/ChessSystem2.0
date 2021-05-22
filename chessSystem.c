@@ -1,8 +1,9 @@
 #include "chessSystem.h"
 
-#include <assert.h>
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
+
 
 #define LOWER_A 'a'
 #define LOWER_Z 'z'
@@ -98,25 +99,6 @@ static bool checkExceededGames(ChessSystem chess, int player1_id, int player2_id
     return false;
 }
 
-/**Eventually, No need to check in all system only in tournament.
-// static bool checkIfGameExists(ChessSystem chess, Game game)
-// {
-//     Tournament tmp = NULL;
-//     MAP_FOREACH(int *, tournament_id, chess->tournaments)
-//     {
-//         tmp = mapGet(chess->tournaments, tournament_id);
-//         if (checkIfGameInTournament(tmp, game))
-//         {
-//             return true;
-//         }
-//         free(tournament_id);
-//     }
-//     return false;
-// }
-/**
- * search for a player in players map of system.
- * if found, returns it, otherwise creates a new player.
- */
 static Player getOrCreatePlayerInSystem(ChessSystem chess, int player_id)
 {
     Player player = (Player)mapGet(chess->players, &player_id);
@@ -135,7 +117,7 @@ static void addNewPlayerToSystem(ChessSystem chess, int player_id, Player player
 {
     if (!mapContains(chess->players, &player_id))
     {
-        mapPut(chess->players, player_id, player);
+        mapPut(chess->players, &player_id, player);
         destroyPlayer(player);
     }
 }

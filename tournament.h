@@ -39,7 +39,7 @@ typedef struct Tournament_t *Tournament;
 * 	NULL - if allocations failed.
 * 	A new Tournament in case of success.
 */
-Tournament createTournament(int tournament_id, char* location, int max_games_per_player);
+Tournament createTournament(int tournament_id, const char* location, int max_games_per_player);
 
 
 /**

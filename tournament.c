@@ -1,8 +1,8 @@
 #include "tournament.h"
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
 #include <stdlib.h>
+#include <assert.h>
 
 
 struct Tournament_t
@@ -91,7 +91,7 @@ static void updateTournamentTotalPlayers(Tournament tournament, int player_1,int
     tournament->total_players += players_to_add;
 }
 
-Tournament createTournament(int tournament_id, char *location, int max_games_per_player)
+Tournament createTournament(int tournament_id, const char *location, int max_games_per_player)
 {
     Tournament new_tournament = malloc(sizeof(new_tournament));
     if (new_tournament == NULL)

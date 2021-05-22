@@ -1,9 +1,8 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "chessSystem.h"
-
-
+#include <stdbool.h>
+#include <stdio.h>
 
 
 

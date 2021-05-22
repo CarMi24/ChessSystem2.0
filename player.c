@@ -1,9 +1,9 @@
 
   
 #include "player.h"
-#include "stdbool.h"
+#include <stdbool.h>
 #include <stdlib.h>
-#include "assert.h"
+#include <assert.h>
 
 
 #define NO_SCORE -1
