@@ -20,4 +20,7 @@ void destroyPlayerLevel(PlayerLevel player_level);
 //compares first by levels, if levels are even , compares by players id's
 int comparePlayerLevel(PlayerLevel player_level1, PlayerLevel player_level2);
 
+int getPlayerLevelId(PlayerLevel player_level);
+double getPlayerLevelLevel(PlayerLevel player_level);
+
 #endif
